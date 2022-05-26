@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+{%  load static %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>테스트게시판</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/static/css/styles.css" rel="stylesheet" />
+        <style>
+            {% comment %} #category {
+                text-align : right;
+            } {% endcomment %}
+            tr{
+                border-collapse: collaps;
+                border-top: 4px solid #23BDB7;
+                border-bottom: 4px solid #23BDB7;
+            }
+            td{
+                padding-top:20px;
+                padding-bottom:20px;
+            }
+            .point{
+                cursor :pointer;
+            }
+            {% comment %} #content a{font-size:25px;} {% endcomment %}
+            
+        </style>
+        <script>
+            //function lrbSubmit(){
+            //    let form = document.querySelector('form[id=lrbForm]');
+            //    form.submit();
+            //}
+            function deleteSubmit(board_YN, id, owner_id){
+                if( confirm('정말 삭제하시겠습니까?')){
+                    if(owner_id == {{request.session.user_id}} ){
+                        let form = document.querySelector('form[id=deleteForm]');
+                        document.querySelector('#deleteForm input[name=delete_YN]').value = board_YN;
+                        document.querySelector('#deleteForm input[name=id]').value = id;
+                        document.querySelector('#deleteForm input[name=board_id]').value = {{board.board_id}};
+                        form.submit();
+                    }
+                    else{
+                        alert('본인이 작성한 글만 삭제 가능 합니다.');
+                    }
+                }
+            }
+            function replySubmit(){
+                if(window.event.keyCode == 13){
+                    document.querySelector('#replyForm input[name=board_id]').value = {{ board.board_id }};
+                    document.querySelector('#replyForm input[name=user_id]').value = {{ request.session.user_id }};
+                    let form = document.querySelector('#replyForm');
+                    form.submit();
+                }
+                if(arguments[0]){
+                    document.querySelector('#replyForm input[name=board_id]').value = {{ board.board_id }};
+                    document.querySelector('#replyForm input[name=user_id]').value = {{ request.session.user_id }};
+                    let form = document.querySelector('#replyForm');
+                    form.submit();
+                }
+            }
+
+            function lrbSubmit(flag, id){
+                document.querySelector('#lrbForm input[name=board_id]').value = {{board.board_id}}
+                document.querySelector('#lrbForm input[name=report_flag]').value = flag
+                document.querySelector('#lrbForm input[name=reply_id]').value = id
+                document.querySelector('#lrbForm input[name=user_id]').value = {{request.session.user_id}}
+
+                const form = document.querySelector('#lrbForm')
+                if(flag == 'l'){
+                    if(id != -1){
+                        let did = false;
+                        let chk = [];
+                        let chkr = [];
+                        {% for x in replyLike%} chk.push({{x.user.user_id}});chkr.push({{x.reply.reply_id}}); {%endfor%}
+                        for (let i = 0 ; i < chk.length ; i++){
+                            if (chkr[i] == id){
+                             if(chk[i] == {{ request.session.user_id }}){
+                                did = true
+                                }   
+                            }
+                        }
+                        if(did){
+                            return alert('이미 좋아요 표시한 글 입니다.');
+                        }
+                        return form.submit();
+                    }
+                    let did = false;
+                    {% for x in board.user_like.all%} {% if x.user_id == request.session.user_id %} did = true {%endif%} {%endfor%}
+                    if (did){
+                        return alert('이미 좋아요 표시한 글 입니다.');
+                    }
+                    return form.submit()
+                }
+                else if(flag == 'r'){
+                    if (id != -1){
+                        if (confirm('이 글을 신고 하시겠습니까?')){
+                            let did = false;
+                            let chk = [];
+                            let chkr = [];
+                            {% for x in replyReport%} chk.push({{x.user.user_id}});chkr.push({{x.reply.reply_id}}); {%endfor%}
+                            for (let i = 0 ; i < chk.length ; i++){
+                                if (chkr[i] == id){
+                                    if(chk[i] == {{ request.session.user_id }}){
+                                        did = true
+                                    }  
+                                } 
+                        }
+                            if (did){
+                            return alert('이미 신고한 글 입니다.');
+                            }
+                            return form.submit();
+                        }
+                    }
+                    if (confirm('이 글을 신고 하시겠습니까?')){
+                        let did = false;
+                        {% for x in board.user_report.all%} {% if x.user_id == request.session.user_id %} did = true {%endif%} {%endfor%}
+                        if (did){
+                        return alert('이미 신고한 글 입니다.');
+                        }
+                        return form.submit();
+                    }
+                }
+                else if(flag == 'b'){
+                    if (id != -1){
+                        let did = false;
+                        let chk = [];
+                        let chkr = []; 
+                        {% for x in replyBookmarked %} chk.push({{x.user.user_id}}); chkr.push({{x.reply.reply_id}}); {%endfor%}
+                        for (let i = 0 ; i < chk.length ; i++){
+                            if (chkr[i] == id){
+                                if(chk[i] == {{ request.session.user_id }}){
+                                    did = true
+                                }   
+                            }
+                        }
+                        if (did){
+                            if(confirm('이미 북마크 한 글 입니다. 북마크에서 삭제하시겠습니까?')){
+                                document.querySelector('#lrbForm input[name=report_flag]').value = 'c'
+                                return form.submit();
+                            }
+                            return 0;
+                        }
+                        if(confirm('이 글을 북마크 하시겠습니까?')){
+                            form.submit();
+                            return 0;
+                        }
+                        return 0;
+                    }
+                    let did = false
+                    {% for x in boardBookmarked %} {% if x.user.user_id == request.session.user_id %} did = true {%endif%} {%endfor%}
+                    if (did){
+                        if(confirm('이미 북마크 한 글 입니다. 북마크에서 삭제하시겠습니까?')){
+                            document.querySelector('#lrbForm input[name=report_flag]').value = 'c'
+                            return form.submit();
+                        }
+                        return 0;
+                    }
+                    if(confirm('이 글을 북마크 하시겠습니까?')){
+                        form.submit();
+                        return 0;
+                    }
+                    return 0;
+                }
+
+            }
+        </script>
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- menu -->
+            {% include 'menu.html' %}
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                {% include 'navbar.html' %}
+                <!-- Page content-->
+                <div class="container-fluid">
+                    
+                    
+
+
+
+
+                    <div style='width:100%'>
+                    <!-- 여기서 UI 작업-->
+                    <table style='width:1710px; margin:0 auto'>
+                    <tr style='border-bottom:none'>>
+                    <td stlye='width:80%; font-size:18px;'><div style='margin-left:30px;font-size:20px;font-weight:bold;'>{{board.board_title}}</div></td>
+                    <td style='text-align:right;'><div style='margin-right:30px;'>
+                        {{category}}
+                        <span id='bookmark' class = 'point' onclick='lrbSubmit("b", -1 )'><img src='/static/img/book32.png' width='24px' height='24px'></span>
+                    </div></td>
+                    
+                    </tr>
+                    <tr style='border-top:none;' >
+                    <td stlye="width:80% "><div style='margin-left:30px;'>{{user.user_nick}} | {{board.board_reg_date|date:"Y.m.d H:i"}}</div></td>
+                    <td style='text-align:right; margin-right:30px;'>
+                        {% comment %} {%if board.board_mod_date != board.board_reg_date %} 
+                        수정됨 
+                        {%endif%}  {% endcomment %}
+                        <span class='point' onclick='lrbSubmit("l", -1)'>
+                            👍 </span> {{board.board_like_cnt}}
+                            조회수:{{board.view_cnt}}
+                            댓글 {{replycnt}} 
+                            <span id='report' class='point' onclick='lrbSubmit("r", -1)' style=margin-right:30px;>
+                                신고
+                            </span> 
+                        </td>
+                    </tr>
+                    </table>
+                    </div>
+
+                    
+
+                    <br>
+                    <form method="get" action="/board_real/download/">
+                        {% comment %} {% csrf_token %} {% endcomment %}
+                        <button style='margin-left:1755px;background-color:white; border:none; color:rgb(76, 76, 76); width:150px; height:40px;' type="submit">파일 저장📁</button>
+                        <input type="hidden" name="id" value="{{ board.board_id }}">
+                    </form>
+
+                    <div style='width:100%;'>
+                        <div class = 'div_content' style='width:1710px;margin:0 auto;height:300px; border:4px solid #23BDB7;'><span id='contents'>{% if board.board_dis_cnt > 4 %} 신고 누적으로 블라인드 되었습니다. {% else %}{{board.board_content}} {%endif%}</span> 
+                        </div>
+                    </div>
+                    <br>
+                    <!--다운로드 버튼-->
+                    
+                    {% comment %} <a href="/board_real/download/?id={{ board.board_id }}">저장</a> {% endcomment %}
+                    {% comment %} <{{ board.board_id }}> <!--진자 문법--> {% endcomment %}
+
+                    {% comment %} <form method="get" action="/board_real/download/?id={{ board.board_id }}"> {% endcomment %}
+
+                       <p>
+                        <a href={% url "board_real:index" %}>
+                            <button style='margin-left:1570px;background-color:#23BDB7; border:none; color:white; width:150px; height:50px;' type="submit">목록</button>
+                        </a> 
+                        <span onclick='deleteSubmit("Y", {{board.board_id}}, {{user.user_id}})'>
+                            <button style='background-color:#23BDB7; border:none; color:white; width:150px; height:50px;' type="submit">삭제</button>
+                        </span>
+                        </p>
+                    <form method="get" action="/board_real/download/">
+                        {% comment %} {% csrf_token %} {% endcomment %}
+                        {% comment %} <button type="submit">파일 저장</button> {% endcomment %}
+                        {% comment %} <button type="submit" class="btn btn-primary ">파일 저장</button> {% endcomment %}
+                        <input type="hidden" name="id" value="{{ board.board_id }}">
+                    </form>
+
+
+
+
+                <!----------------->
+                    {%for tag in tags%}
+                    #{{tag.tag_name}}&nbsp
+                    {% endfor%}
+                    <br>
+                    <div style='margin-left:195px;';>댓글 {{replycnt}}</div>
+                    <div style='width:100%'>'
+                    <table style='width:1710px; margin:0 auto; margin-top:-20px;'>
+                    {%for reply in replys%}
+                    <tr>
+
+                        <td style='width:300px;'><div style= 'margin-left:30px;'>{{reply.user.user_nick}}</div></td>
+                        <td style="width:60%;">{% if reply.reply_dis_cnt > 4 %} 신고누적으로 블라인드 되었습니다.{% else %} {{reply.reply_content}} {% endif %}</td>
+                        <td style='width:100px;'>{{reply.reg_date|date:"m.d  H:i"}}</td>
+
+                        {% comment %} <td>{% if reply.reg_date != reply.mod_date %}수정됨{%endif%}</td> {% endcomment %}
+                        <td><span class = 'point' id='report' onclick='lrbSubmit("l", {{reply.reply_id}})' style='cursor:pointer;'>👍 </span> {% if reply.reply_like_cnt > 0 %}{{reply.reply_like_cnt}}{%endif%} </td>
+                        <td><span  class = 'point' id='report' onclick='lrbSubmit("r", {{reply.reply_id}})' style='cursor:pointer;'>신고</span></td>
+                        <td><span class = 'point' style='cursor:pointer' onclick='deleteSubmit("N", {{reply.reply_id}}, {{reply.user.user_id}})' >삭제</span></td>
+                        <td><span  class = 'point' id='report' onclick='lrbSubmit("b", {{reply.reply_id}})'><img src='/static/img/book32.png' width='24px' height='24px'></span></td>
+                    </tr>
+                    {%endfor%}
+                    </table>
+                    </div>
+                    <br/>
+                    <form action="/board_real/board_view/" method="post" id='replyForm' onsubmit='return false'>
+                        {% csrf_token %}
+                        {{formreply.board_id.as_hidden}}
+                        {{formreply.user_id.as_hidden}}
+                        <input style='margin-left: 165px; width:1710px; height: 50px; border:4px solid #23BDB7;' 
+                        type="text" name="reply_content" maxlength="1500" required id="id_reply_content" 
+                        onkeyup='replySubmit()' placeholder="  댓글을 입력하세요">
+                    
+                    </form>
+                    <button onclick='replySubmit(true)'
+                    style='margin-top: 20px;margin-left:1725px;background-color:#23BDB7; border:none; color:white; width:150px; height:40px;'>
+                        {% comment %} <span onclick='replySubmit(true)'>
+                        등록
+                        </span> {% endcomment %}
+                        등록
+                    </button>
+                </div>
+            </div>
+        </div>
+        <form action="/board_real/board_view/" method="post" id='lrbForm'>
+            {% csrf_token %}
+            {{formlike.board_id.as_hidden}}
+            {{formlike.reply_id.as_hidden}}
+            {{formlike.user_id.as_hidden}}
+            {{formlike.report_flag.as_hidden}}
+        </form>
+        <form action="/board_real/board_view/" method="post" id='deleteForm'>
+            {% csrf_token %}
+            {{formdelete.delete_YN.as_hidden}}
+            {{formdelete.id.as_hidden}}
+            {{formdelete.board_id.as_hidden}}
+        </form>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="/static/js/scripts.js"></script>
+    </body>
+</html>
+
+
+
+
