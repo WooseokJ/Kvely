@@ -1,0 +1,71 @@
+@charset "UTF-8";
+
+.mp-link:link{
+    color: black;
+    text-decoration-line: none;
+}
+
+.mp-link:visited{
+    color: rgb(173, 173, 173);
+    text-decoration-line: none;
+}
+
+.mp-more:link{
+    color: black;
+    text-decoration-line: none;
+}
+
+.mp-more:visited{
+    color: black;
+    text-decoration-line: none;
+}
+
+.mp-btn-margin {
+    margin-top : 30px;
+    display:block;
+}
+
+.mp-board-margin{
+    margin-top: 50px;
+    margin-left: 50px;
+}
+
+.mp-btn-color{
+    color: #fff;
+    background-color: #23BDB7;
+    border-color: #23BDB7;
+}
+
+.mp-btn-color:hover{
+    color: #fff;
+    background-color: #1d9e9a;
+    border-color: #1d9e9a;
+}
+
+.mp-hr{
+    border: solid 1px #23BDB7;
+    opacity: 1;
+    color : #23BDB7;
+    margin-top: 10px;
+}
+
+.dp-btn-del{
+    margin-left: 35%;
+    float : left;
+}
+
+.dp-btn-back{
+    margin-left: 50%;
+    display: flex;
+    width: fit-content;
+}
+
+.mp-more:link{
+    color: black;
+    text-decoration-line: none;
+}
+
+.mp-more:visited{
+    color: black;
+    text-decoration-line: none;
+}

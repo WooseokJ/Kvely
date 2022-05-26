@@ -1,0 +1,25 @@
+@charset "UTF-8";
+body {
+    min-height: 100vh;
+
+    /* background: -webkit-gradient(linear, left bottom, right top, from(#92b5db), to(#8b8b8b));
+    background: -webkit-linear-gradient(bottom left, #ffffff 0%, #8b8b8b 100%);
+    background: -moz-linear-gradient(bottom left, #ffffff 0%, #8b8b8b 100%);
+    background: -o-linear-gradient(bottom left, #ffffff 0%, #8b8b8b 100%); */
+    background: rgb(223, 223, 223);
+}
+
+.input-form {
+    max-width: 680px;
+
+    margin-top: 80px;
+    padding: 32px;
+
+    background: #fff;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.15);
+}
